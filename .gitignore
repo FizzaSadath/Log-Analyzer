@@ -2,3 +2,4 @@ log_generator
 logs
 tools
 parser/coverage.out
+indexer/coverage.out

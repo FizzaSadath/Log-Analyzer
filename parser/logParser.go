@@ -65,7 +65,7 @@ func ParseLogFiles(path string) ([]models.LogEntry, error) {
 		filepath := filepath.Join(path, file.Name())
 		f, err := os.Open(filepath)
 		if err != nil {
-			fmt.Printf("Skipping file %s due to error: %v\n", path, err)
+			fmt.Printf("Skipping file %s due to error: %v\n", filepath, err)
 			continue
 		}
 		scanner := bufio.NewScanner(f)
@@ -78,10 +78,6 @@ func ParseLogFiles(path string) ([]models.LogEntry, error) {
 				allEntries = append(allEntries, *entry)
 			}
 		}
-		// err = scanner.Err()
-		// if err != nil {
-		// 	fmt.Printf("Error reading file %s due to error :%v.", path, err)
-		// }
 		f.Close()
 
 	}
