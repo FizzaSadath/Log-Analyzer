@@ -52,7 +52,7 @@ func makeMockLogStore() models.LogStore {
 func TestNoFiltersReturnsAllLogs(t *testing.T) {
 	store := makeMockLogStore()
 
-	got := Filter1Logs(store, nil, nil, nil, nil, time.Time{}, time.Time{})
+	got := FilterLogs(store, nil, nil, nil, nil, time.Time{}, time.Time{})
 	if len(got) != 3 {
 		t.Errorf("expected 3 logs, got %d", len(got))
 	}
@@ -61,7 +61,7 @@ func TestNoFiltersReturnsAllLogs(t *testing.T) {
 func TestFilterByLevel(t *testing.T) {
 	store := makeMockLogStore()
 
-	got := Filter1Logs(store, []string{"ERROR"}, nil, nil, nil, time.Time{}, time.Time{})
+	got := FilterLogs(store, []string{"ERROR"}, nil, nil, nil, time.Time{}, time.Time{})
 	if len(got) != 1 || got[0].Raw != "entry2" {
 		t.Errorf("expected entry2, got %+v", got)
 	}
@@ -70,7 +70,7 @@ func TestFilterByLevel(t *testing.T) {
 func TestFilterByComponent(t *testing.T) {
 	store := makeMockLogStore()
 
-	got := Filter1Logs(store, nil, []string{"auth"}, nil, nil, time.Time{}, time.Time{})
+	got := FilterLogs(store, nil, []string{"auth"}, nil, nil, time.Time{}, time.Time{})
 	if len(got) != 1 || got[0].Raw != "entry1" {
 		t.Errorf("expected entry1, got %+v", got)
 	}
@@ -79,7 +79,7 @@ func TestFilterByComponent(t *testing.T) {
 func TestFilterByHost(t *testing.T) {
 	store := makeMockLogStore()
 
-	got := Filter1Logs(store, nil, nil, []string{"server2"}, nil, time.Time{}, time.Time{})
+	got := FilterLogs(store, nil, nil, []string{"server2"}, nil, time.Time{}, time.Time{})
 	if len(got) != 1 || got[0].Raw != "entry2" {
 		t.Errorf("expected entry2, got %+v", got)
 	}
@@ -88,7 +88,7 @@ func TestFilterByHost(t *testing.T) {
 func TestFilterByReqID(t *testing.T) {
 	store := makeMockLogStore()
 
-	got := Filter1Logs(store, nil, nil, nil, []string{"r3"}, time.Time{}, time.Time{})
+	got := FilterLogs(store, nil, nil, nil, []string{"r3"}, time.Time{}, time.Time{})
 	if len(got) != 1 || got[0].Raw != "entry3" {
 		t.Errorf("expected entry3, got %+v", got)
 	}
@@ -99,7 +99,7 @@ func TestFilterByTimeRange(t *testing.T) {
 
 	start := makeTime("2025-01-01 10:30:00")
 	end := makeTime("2025-01-01 12:30:00")
-	got := Filter1Logs(store, nil, nil, nil, nil, start, end)
+	got := FilterLogs(store, nil, nil, nil, nil, start, end)
 
 	if len(got) != 2 {
 		t.Errorf("expected 2 logs between 10:30 and 12:30, got %d", len(got))
@@ -109,7 +109,7 @@ func TestFilterByTimeRange(t *testing.T) {
 func TestCombinedLevelAndComponent(t *testing.T) {
 	store := makeMockLogStore()
 
-	got := Filter1Logs(store, []string{"INFO"}, []string{"api"}, nil, nil, time.Time{}, time.Time{})
+	got := FilterLogs(store, []string{"INFO"}, []string{"api"}, nil, nil, time.Time{}, time.Time{})
 	if len(got) != 1 || got[0].Raw != "entry3" {
 		t.Errorf("expected entry3, got %+v", got)
 	}
@@ -117,7 +117,7 @@ func TestCombinedLevelAndComponent(t *testing.T) {
 
 func TestEmptyStore(t *testing.T) {
 	store := models.LogStore{} // no segments
-	got := Filter1Logs(store, nil, nil, nil, nil, time.Time{}, time.Time{})
+	got := FilterLogs(store, nil, nil, nil, nil, time.Time{}, time.Time{})
 	if len(got) != 0 {
 		t.Errorf("expected 0 logs for empty store, got %d", len(got))
 	}
@@ -136,7 +136,7 @@ func TestSkipSegmentBeforeStartTime(t *testing.T) {
 	startTime := now // segment ends before this → should skip
 	endTime := time.Time{}
 
-	result := Filter1Logs(store, nil, nil, nil, nil, startTime, endTime)
+	result := FilterLogs(store, nil, nil, nil, nil, startTime, endTime)
 	if len(result) != 0 {
 		t.Errorf("expected 0 logs, got %d", len(result))
 	}
@@ -155,7 +155,7 @@ func TestSkipSegmentAfterEndTime(t *testing.T) {
 	endTime := now // segment starts after → should skip
 	startTime := time.Time{}
 
-	result := Filter1Logs(store, nil, nil, nil, nil, startTime, endTime)
+	result := FilterLogs(store, nil, nil, nil, nil, startTime, endTime)
 	if len(result) != 0 {
 		t.Errorf("expected 0 logs, got %d", len(result))
 	}
@@ -173,7 +173,7 @@ func TestSkipEntryBeforeStartTime(t *testing.T) {
 	startTime := now
 	endTime := time.Time{}
 
-	result := Filter1Logs(store, nil, nil, nil, nil, startTime, endTime)
+	result := FilterLogs(store, nil, nil, nil, nil, startTime, endTime)
 	if len(result) != 0 {
 		t.Errorf("expected 0 logs, got %d", len(result))
 	}
@@ -191,7 +191,7 @@ func TestSkipEntryAfterEndTime(t *testing.T) {
 	startTime := time.Time{}
 	endTime := now
 
-	result := Filter1Logs(store, nil, nil, nil, nil, startTime, endTime)
+	result := FilterLogs(store, nil, nil, nil, nil, startTime, endTime)
 	if len(result) != 0 {
 		t.Errorf("expected 0 logs, got %d", len(result))
 	}
@@ -216,7 +216,7 @@ func TestMatchedEntryBeforeStartTime(t *testing.T) {
 	startTime := now.Add(-1 * time.Hour) // after entry time
 	endTime := time.Time{}
 
-	result := Filter1Logs(store, []string{"INFO"}, nil, nil, nil, startTime, endTime)
+	result := FilterLogs(store, []string{"INFO"}, nil, nil, nil, startTime, endTime)
 	if len(result) != 0 {
 		t.Errorf("expected 0 logs (skipped due to before start), got %d", len(result))
 	}
@@ -241,7 +241,7 @@ func TestMatchedEntryAfterEndTime(t *testing.T) {
 	startTime := time.Time{}
 	endTime := now.Add(1 * time.Hour) // before entry time
 
-	result := Filter1Logs(store, []string{"INFO"}, nil, nil, nil, startTime, endTime)
+	result := FilterLogs(store, []string{"INFO"}, nil, nil, nil, startTime, endTime)
 	if len(result) != 0 {
 		t.Errorf("expected 0 logs (skipped due to after end), got %d", len(result))
 	}
