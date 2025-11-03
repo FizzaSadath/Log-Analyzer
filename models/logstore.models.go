@@ -1,5 +1,5 @@
 package models
 
 type LogStore struct {
-	Segments []Segment
+	Segments []Segment `json:"segments"`
 }

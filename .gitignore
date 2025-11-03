@@ -2,3 +2,4 @@ log_generator
 logs
 tools
 */coverage.out
+parsed_logs.json
