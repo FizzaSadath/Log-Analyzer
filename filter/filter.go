@@ -20,7 +20,7 @@ func FilterLogs(
 
 	// Loop through segments concurrently
 	for _, segment := range store.Segments {
-		seg := segment // capture loop variable
+		seg := segment
 		wg.Add(1)
 		go func(seg models.Segment) {
 			defer wg.Done()
@@ -85,7 +85,7 @@ func FilterLogs(
 
 			var localResults []models.LogEntry
 
-			// Case: no filters and no time constraints
+			// no filters and no time constraints
 			if totalFilters == 0 && startTime.IsZero() && endTime.IsZero() {
 				localResults = append(localResults, seg.LogEntries...)
 			} else if totalFilters == 0 {
@@ -111,7 +111,6 @@ func FilterLogs(
 				localResults = append(localResults, entry)
 			}
 
-			// Lock before appending to shared result slice
 			mu.Lock()
 			result = append(result, localResults...)
 			mu.Unlock()

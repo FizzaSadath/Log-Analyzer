@@ -24,8 +24,7 @@ func ParseLogSegments(path string) (models.LogStore, error) {
 	}
 
 	var wg sync.WaitGroup
-	var mu sync.Mutex // protects logStore.Segments
-
+	var mu sync.Mutex
 	for _, file := range files {
 		if file.IsDir() {
 			continue
