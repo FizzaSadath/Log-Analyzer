@@ -6,58 +6,29 @@ import (
 	"log/slog"
 	"log_analyzer/filter"
 	"log_analyzer/segmenter"
-	"time"
-
-	"strings"
 )
 
 func main() {
-	// entries, _ := parser.ParseLogFiles("../logs")
-	// for _, entry := range entries {
-	// 	fmt.Println(entry)
-	// }
-	// fmt.Println(len(entries))
-	level := flag.String("level", "", "Filter by log level")
-	component := flag.String("component", "", "Filter by component")
-	host := flag.String("host", "", "Filter by host")
-	reqID := flag.String("reqID", "", "Filter by requestID")
-	startTimeString := flag.String("after", "", "Filter by start time")
-	endTimeString := flag.String("before", "", "Filter by end time")
+	logPath := flag.String("path", "/home/fizza/goProjects/log_analyzer/logs", "Path to the log directory (required)")
+	level := flag.String("level", "", "Comma separated list of log levels")
+	component := flag.String("component", "", "Comma separated list of components")
+	host := flag.String("host", "", "Comma separated list of hosts")
+	reqID := flag.String("reqID", "", "Comma separated list of requestIDs")
+	startTimeString := flag.String("after", "", "Filter by start time [2006-01-02 15:04:05]")
+	endTimeString := flag.String("before", "", "Filter by end time [2006-01-02 15:04:05]")
 	flag.Parse()
 
-	logStore, err := segmenter.ParseLogSegments("../logs")
-	// fmt.Println(logStore.Segments[0])
+	logStore, err := segmenter.ParseLogSegments(*logPath)
 	if err != nil {
 		slog.Error("Failed to parse logs\n")
 	}
-	split := func(s string) []string {
-		if s == "" {
-			return nil
-		}
-		parts := strings.Split(s, ",")
-		for i := range parts {
-			parts[i] = strings.TrimSpace(parts[i])
-		}
-		return parts
-	}
+
 	levels := split(*level)
 	components := split(*component)
 	hosts := split(*host)
 	reqIDs := split(*reqID)
-	var startTime, endTime time.Time
-	if *startTimeString != "" {
-		startTime, err = time.Parse("2006-01-02 15:04:05", *startTimeString)
-		if err != nil {
-			slog.Error("Error parsing start time", "error", err)
-		}
-	}
-
-	if *endTimeString != "" {
-		endTime, err = time.Parse("2006-01-02 15:04:05", *endTimeString)
-		if err != nil {
-			slog.Error("Error parsing end time", "error", err)
-		}
-	}
+	startTime := parseTimeFlag(*startTimeString)
+	endTime := parseTimeFlag(*endTimeString)
 
 	filteredLogs := filter.FilterLogs(logStore, levels, components, hosts, reqIDs, startTime, endTime)
 	fmt.Printf("Found %d matching entries\n", len(filteredLogs))
