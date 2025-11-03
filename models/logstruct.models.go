@@ -16,11 +16,11 @@ func ToLogLevel(s string) LogLevel {
 }
 
 type LogEntry struct {
-	Raw       string
-	Time      time.Time
-	Level     LogLevel
-	Component string
-	Host      string
-	ReqID     string
-	Msg       string
+	Raw       string    `json:"raw"`
+	Time      time.Time `json:"time"`
+	Level     LogLevel  `json:"level"`
+	Component string    `json:"component"`
+	Host      string    `json:"host"`
+	ReqID     string    `json:"redID"`
+	Msg       string    `json:"message"`
 }
