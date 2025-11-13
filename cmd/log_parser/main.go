@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log/slog"
-	"log_analyzer/segmenter"
+	"log_analyzer/pkg/segmenter"
 	"os"
 )
 

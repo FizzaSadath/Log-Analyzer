@@ -1,0 +1,21 @@
+mode: set
+log_analyzer/parser/logParser.go:25.56,29.18 2 1
+log_analyzer/parser/logParser.go:29.18,31.3 1 1
+log_analyzer/parser/logParser.go:32.2,33.48 2 1
+log_analyzer/parser/logParser.go:33.48,34.17 1 1
+log_analyzer/parser/logParser.go:34.17,36.4 1 1
+log_analyzer/parser/logParser.go:38.2,39.16 2 1
+log_analyzer/parser/logParser.go:39.16,41.3 1 1
+log_analyzer/parser/logParser.go:42.2,52.20 2 1
+log_analyzer/parser/logParser.go:55.60,58.16 3 1
+log_analyzer/parser/logParser.go:58.16,60.3 1 1
+log_analyzer/parser/logParser.go:61.2,61.29 1 1
+log_analyzer/parser/logParser.go:61.29,62.19 1 1
+log_analyzer/parser/logParser.go:62.19,63.12 1 1
+log_analyzer/parser/logParser.go:65.3,67.17 3 1
+log_analyzer/parser/logParser.go:67.17,69.12 2 1
+log_analyzer/parser/logParser.go:71.3,74.22 3 1
+log_analyzer/parser/logParser.go:74.22,77.18 3 1
+log_analyzer/parser/logParser.go:77.18,79.5 1 1
+log_analyzer/parser/logParser.go:85.3,85.12 1 1
+log_analyzer/parser/logParser.go:88.2,88.24 1 1

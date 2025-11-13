@@ -1,0 +1,4 @@
+mode: set
+log_analyzer/indexer/segmentIndexer.go:5.74,12.40 2 1
+log_analyzer/indexer/segmentIndexer.go:12.40,17.3 4 1
+log_analyzer/indexer/segmentIndexer.go:18.2,18.14 1 1
