@@ -67,7 +67,6 @@ func ParseLogSegments(path string) (models.LogStore, error) {
 				Index:      index,
 			}
 
-			// lock before writing to shared slice
 			mu.Lock()
 			logStore.Segments = append(logStore.Segments, segment)
 			mu.Unlock()
