@@ -123,11 +123,10 @@ func QueryDB(db *gorm.DB, query []string) ([]Entry, error) {
 
 		key := strings.ToLower(c.key)
 
-		// Translate logical columns to foreign key columns
 		switch key {
 
 		case "level":
-			// Convert values INFO → levelID
+			// Convert values like INFO to levelID
 			var ids []uint
 			for _, v := range c.value {
 				var lvl LogLevel
@@ -186,11 +185,43 @@ func QueryDB(db *gorm.DB, query []string) ([]Entry, error) {
 	return ret, nil
 }
 
-// Helper: convert []uint → []string
+// convert slice of foreign keys to string
 func toStringSlice(nums []uint) []string {
 	s := make([]string, len(nums))
 	for i, n := range nums {
 		s[i] = fmt.Sprint(n)
 	}
 	return s
+}
+
+// for web
+func SplitUserFilter(input string) []string {
+	var parts []string
+	current := ""
+	tokens := strings.Fields(input)
+
+	for _, tok := range tokens {
+		// If token contains an operator, then new condition
+		if strings.Contains(tok, "=") ||
+			strings.Contains(tok, ">=") ||
+			strings.Contains(tok, "<=") ||
+			strings.Contains(tok, ">") ||
+			strings.Contains(tok, "<") {
+
+			// Save previous condition
+			if current != "" {
+				parts = append(parts, current)
+			}
+			current = tok
+		} else {
+			// continuation (timestamps)
+			current += " " + tok
+		}
+	}
+
+	if current != "" {
+		parts = append(parts, current)
+	}
+
+	return parts
 }

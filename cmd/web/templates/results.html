@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Results</title>
+</head>
+<body>
+
+<h2>Filtered Results</h2>
+
+{{ if .Error }}
+    <p style="color:red;">{{ .Error }}</p>
+{{ end }}
+
+{{ if .Entries }}
+<table border="1" cellpadding="5">
+    <tr>
+        <th>Timestamp</th>
+        <th>Level</th>
+        <th>Component</th>
+        <th>Host</th>
+        <th>Message</th>
+    </tr>
+
+    {{ range .Entries }}
+    <tr>
+        <td>{{ .TimeStamp }}</td>
+        <td>{{ .Level.Level }}</td>
+        <td>{{ .Component.Component }}</td>
+        <td>{{ .Host.Host }}</td>
+        <td>{{ .Message }}</td>
+    </tr>
+    {{ end }}
+</table>
+{{ else }}
+    <p>No results found.</p>
+{{ end }}
+
+<br>
+<a href="/">Back to Filter</a>
+
+</body>
+</html>

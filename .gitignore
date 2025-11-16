@@ -4,4 +4,3 @@ tools
 */coverage.out
 parsed_logs.json
 database.txt
-pkg/api/
