@@ -1,13 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"log_analyzer/pkg/database"
 	"log_analyzer/pkg/parser"
 	"os"
 )
 
-const dbUrl = "postgresql:///log_analyzer?host=/var/run/postgresql/"
+const dbUrl = "postgresql:///logsdb?host=/var/run/postgresql/"
 
 func commandHandler(args []string) error {
 	db, err := database.CreateDB(dbUrl)
@@ -29,20 +30,59 @@ func commandHandler(args []string) error {
 		if err != nil {
 			return err
 		}
-		for _, entry := range entries {
-			dbEntry := database.Entry{
-				TimeStamp: entry.Time,
-				Level:     string(entry.Level),
-				Component: entry.Component,
-				Host:      entry.Host,
-				RequestId: entry.ReqID,
-				Message:   entry.Msg,
+
+		for _, p := range entries {
+
+			// Look up LevelID
+			var level database.LogLevel
+			if err := db.First(&level, "level = ?", string(p.Level)).Error; err != nil {
+				return fmt.Errorf("unknown level %s: %w", p.Level, err)
 			}
-			err := database.AddDB(db, dbEntry)
-			if err != nil {
+
+			//  Look up ComponentID
+			var component database.LogComponent
+			if err := db.First(&component, "component = ?", p.Component).Error; err != nil {
+				return fmt.Errorf("unknown component %s: %w", p.Component, err)
+			}
+
+			//  Look up HostID
+			var host database.LogHost
+			if err := db.First(&host, "host = ?", p.Host).Error; err != nil {
+				return fmt.Errorf("unknown host %s: %w", p.Host, err)
+			}
+
+			//  Create Entry WITH foreign keys
+			dbEntry := database.Entry{
+				TimeStamp:   p.Time,
+				LevelID:     level.ID,
+				ComponentID: component.ID,
+				HostID:      host.ID,
+				RequestId:   p.ReqID,
+				Message:     p.Msg,
+			}
+
+			if err := database.AddDB(db, dbEntry); err != nil {
 				return err
 			}
 		}
+		return nil
+
+	case "query":
+		queryList := args[1:]
+		fmt.Println(queryList)
+		//queries := strings.Join(queryList, " ")
+		entries, err := database.QueryDB(db, queryList)
+		if err != nil {
+			return err
+		}
+		for _, entry := range entries {
+			fmt.Println(entry)
+		}
+		slog.Info("Filtering successful!", "no. of entries:", len(entries))
+		return nil
+	default:
+		slog.Warn("Unknown command!")
+		return fmt.Errorf("unknown command %v", args[0])
 
 	}
 	return nil
