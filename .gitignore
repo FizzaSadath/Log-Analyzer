@@ -4,3 +4,4 @@ tools
 */coverage.out
 parsed_logs.json
 database.txt
+cmd/log_dbinsertion/main

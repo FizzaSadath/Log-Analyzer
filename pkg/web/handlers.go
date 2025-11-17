@@ -3,37 +3,52 @@ package web
 import (
 	"log_analyzer/pkg/database"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
 func ShowFilterPage(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", nil)
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"Level":     []string{},
+		"Component": []string{},
+		"Host":      []string{},
+		"RequestID": "",
+		"Timestamp": "",
+	})
 }
 
 func RunFilter(c *gin.Context) {
-	rawFilter := c.PostForm("filter")
 
-	if strings.TrimSpace(rawFilter) == "" {
-		c.HTML(http.StatusOK, "results.html", gin.H{
-			"Error": "Filter cannot be empty",
-		})
-		return
-	}
+	// Multi-select checkboxes
+	levels := c.PostFormArray("level")
+	components := c.PostFormArray("component")
+	hosts := c.PostFormArray("host")
 
-	// Split into parts by AND (space or comma)
-	parts := database.SplitUserFilter(rawFilter)
+	// Textboxes
+	requestID := c.PostForm("request_id")
+	timestamp := c.PostForm("timestamp") // e.g., "> 2025-11-17 10:00:00"
 
-	entries, err := database.QueryDB(DB, parts)
+	// Call database function
+	entries, err := database.FilterLogs(DB, levels, components, hosts, requestID, timestamp)
 	if err != nil {
-		c.HTML(http.StatusOK, "results.html", gin.H{
-			"Error": err.Error(),
+		c.HTML(http.StatusOK, "index.html", gin.H{
+			"Error":     err.Error(),
+			"Level":     levels,
+			"Component": components,
+			"Host":      hosts,
+			"RequestID": requestID,
+			"Timestamp": timestamp,
 		})
 		return
 	}
 
-	c.HTML(http.StatusOK, "results.html", gin.H{
-		"Entries": entries,
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"Entries":   entries,
+		"Count":     len(entries),
+		"Level":     levels,
+		"Component": components,
+		"Host":      hosts,
+		"RequestID": requestID,
+		"Timestamp": timestamp,
 	})
 }

@@ -2,16 +2,159 @@
 <html>
 <head>
     <title>Log Filter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+        }
+
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        /* Stack checkboxes vertically */
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        input[type="text"] {
+            padding: 5px;
+            width: 200px;
+        }
+
+        button {
+            padding: 7px 15px;
+            cursor: pointer;
+            margin-top: 22px;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+
+        h3 {
+            margin-top: 30px;
+        }
+
+        p.error {
+            color: red;
+        }
+    </style>
 </head>
 <body>
 
-    <h2>Log Filter</h2>
+<h2>Log Filter</h2>
 
-    <form method="POST" action="/filter">
-        <label>Filter:</label>
-        <input type="text" name="filter" style="width:300px;">
+<form method="POST" action="/filter">
+
+    <!-- Level -->
+    <div class="form-group">
+        <label>Level:</label>
+        <div class="checkbox-group">
+            <label><input type="checkbox" name="level" value="INFO" {{ if (contains .Level "INFO") }}checked{{ end }}> INFO</label>
+            <label><input type="checkbox" name="level" value="WARN" {{ if (contains .Level "WARN") }}checked{{ end }}> WARN</label>
+            <label><input type="checkbox" name="level" value="ERROR" {{ if (contains .Level "ERROR") }}checked{{ end }}> ERROR</label>
+            <label><input type="checkbox" name="level" value="DEBUG" {{ if (contains .Level "DEBUG") }}checked{{ end }}> DEBUG</label>
+        </div>
+    </div>
+
+    <!-- Component -->
+    <div class="form-group">
+        <label>Component:</label>
+        <div class="checkbox-group">
+            <label><input type="checkbox" name="component" value="api-server" {{ if (contains .Component "api-server") }}checked{{ end }}> api-server</label>
+            <label><input type="checkbox" name="component" value="database" {{ if (contains .Component "database") }}checked{{ end }}> database</label>
+            <label><input type="checkbox" name="component" value="cache" {{ if (contains .Component "cache") }}checked{{ end }}> cache</label>
+            <label><input type="checkbox" name="component" value="worker" {{ if (contains .Component "worker") }}checked{{ end }}> worker</label>
+            <label><input type="checkbox" name="component" value="auth" {{ if (contains .Component "auth") }}checked{{ end }}> auth</label>
+        </div>
+    </div>
+
+    <!-- Host -->
+    <div class="form-group">
+        <label>Host:</label>
+        <div class="checkbox-group">
+            <label><input type="checkbox" name="host" value="web01" {{ if (contains .Host "web01") }}checked{{ end }}> web01</label>
+            <label><input type="checkbox" name="host" value="web02" {{ if (contains .Host "web02") }}checked{{ end }}> web02</label>
+            <label><input type="checkbox" name="host" value="cache01" {{ if (contains .Host "cache01") }}checked{{ end }}> cache01</label>
+            <label><input type="checkbox" name="host" value="worker01" {{ if (contains .Host "worker01") }}checked{{ end }}> worker01</label>
+            <label><input type="checkbox" name="host" value="db01" {{ if (contains .Host "db01") }}checked{{ end }}> db01</label>
+        </div>
+    </div>
+
+    <!-- Request ID -->
+    <div class="form-group">
+        <label>Request ID:</label>
+        <input type="text" name="request_id" value="{{ .RequestID }}" placeholder="Request ID">
+    </div>
+
+    <!-- Timestamp -->
+    <div class="form-group">
+        <label>Timestamp:</label>
+        <input type="text" name="timestamp" value="{{ .Timestamp }}" placeholder=">2025-11-17 10:00:00">
+    </div>
+
+    <div class="form-group" style="align-self:flex-end;">
         <button type="submit">Search</button>
-    </form>
+    </div>
+</form>
+
+<!-- Error -->
+{{ if .Error }}
+<p class="error">{{ .Error }}</p>
+{{ end }}
+
+<!-- Results -->
+{{ if .Entries }}
+<h3>Results</h3>
+<p><b>{{ .Count }}</b> entries found.</p>
+<table>
+    <tr>
+        <th>Timestamp</th>
+        <th>Level</th>
+        <th>Component</th>
+        <th>Host</th>
+        <th>Request ID</th>
+        <th>Message</th>
+    </tr>
+    {{ range .Entries }}
+    <tr>
+        <td>{{ .TimeStamp }}</td>
+        <td>{{ .Level.Level }}</td>
+        <td>{{ .Component.Component }}</td>
+        <td>{{ .Host.Host }}</td>
+        <td>{{ .RequestId }}</td>
+        <td>{{ .Message }}</td>
+    </tr>
+    {{ end }}
+</table>
+{{ end }}
 
 </body>
 </html>
