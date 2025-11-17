@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"log/slog"
 	"log_analyzer/pkg/database"
 	"log_analyzer/pkg/parser"
+	"log_analyzer/pkg/web"
 	"os"
 )
 
@@ -80,6 +82,21 @@ func commandHandler(args []string) error {
 		}
 		slog.Info("Filtering successful!", "no. of entries:", len(entries))
 		return nil
+
+	case "web":
+		// Connect DB
+		db, err := database.CreateDB(dbUrl)
+		if err != nil {
+			return nil
+		}
+
+		// Build router
+		r := web.SetupRouter(db)
+
+		// Start server
+		log.Println("Server running at http://localhost:8080")
+		r.Run(":8080")
+
 	default:
 		slog.Warn("Unknown command!")
 		return fmt.Errorf("unknown command %v", args[0])

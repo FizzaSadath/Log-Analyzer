@@ -12,7 +12,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 
 	r := gin.Default()
 
-	r.LoadHTMLGlob("cmd/web/templates/*")
+	r.LoadHTMLGlob("pkg/web/templates/*")
 
 	r.GET("/", ShowFilterPage)
 	r.POST("/filter", RunFilter)
