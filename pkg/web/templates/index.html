@@ -1,160 +1,323 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Log Filter</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 30px;
-        }
+  <meta charset="utf-8" />
+  <title>LOG ANALYZER</title>
 
-        form {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            align-items: flex-start;
-        }
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
+  <style>
+  
+    :root{
+      --bg: #0f1720;
+      --card: rgba(255,255,255,0.03);
+      --muted: #98a6bf;
+      --accent: #5db0ff; 
+      --accent-2: #7be0c7; 
+      --surface: #121620;
+      --elev-1: rgba(255,255,255,0.02);
+      --glass: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    }
 
-        .form-group label {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
+    html,body{
+      height:100%;
+      background: radial-gradient(circle at 10% 10%, rgba(93,176,255,0.02), transparent 120px),
+                  radial-gradient(circle at 90% 90%, rgba(123,224,199,0.01), transparent 120px),
+                  var(--bg);
+      color: #e6eef8;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial;
+      margin:0;
+      padding:0;
+    }
 
-        /* Stack checkboxes vertically */
-        .checkbox-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
+    .container {
+      max-width: 1200px;
+    }
 
-        input[type="text"] {
-            padding: 5px;
-            width: 200px;
-        }
+    h2 {
+      color: #dff3ff;
+      letter-spacing: 0.6px;
+      font-weight: 600;
+    }
 
-        button {
-            padding: 7px 15px;
-            cursor: pointer;
-            margin-top: 22px;
-        }
+    .filter-card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 22px;
+      box-shadow: 0 6px 18px rgba(2,6,23,0.6), 0 2px 6px var(--elev-1);
+      border: 1px solid rgba(255,255,255,0.03);
+      backdrop-filter: blur(6px) saturate(110%);
+      margin-bottom: 20px;
+    }
 
-        table {
-            border-collapse: collapse;
-            margin-top: 20px;
-            width: 100%;
-        }
+    .section-title {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 10px;
+      display:block;
+      font-weight:600;
+    }
 
-        table, th, td {
-            border: 1px solid #ccc;
-        }
+    label.form-label {
+      color: var(--muted);
+      font-weight:600;
+      font-size:0.92rem;
+    }
 
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
+  
+    .form-control {
+      background: #0b1116;
+      border: 1px solid rgba(255,255,255,0.06);
+      color: #e6eef8;
+      box-shadow: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+    }
 
-        h3 {
-            margin-top: 30px;
-        }
+    .form-control::placeholder { color: rgba(230,238,248,0.35); }
 
-        p.error {
-            color: red;
-        }
-    </style>
+    .form-control:focus {
+      outline: none;
+      border-color: rgba(93,176,255,0.9);
+      box-shadow: 0 6px 18px rgba(93,176,255,0.06), 0 0 0 3px rgba(93,176,255,0.06);
+      background: #071018;
+    }
+
+    .form-check-input {
+      width: 18px;
+      height: 18px;
+      margin-top: 0.25rem;
+      margin-right: 0.5rem;
+      border-radius: 4px;
+      border: 1.5px solid rgba(255,255,255,0.08);
+      background: transparent;
+      transition: all .12s ease;
+      box-shadow: none;
+    }
+
+    .form-check-input:checked {
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border-color: rgba(255,255,255,0.12);
+      box-shadow: 0 6px 18px rgba(93,176,255,0.06);
+    }
+
+    .form-check-label {
+      color: #dfeaf9;
+      font-weight:500;
+    }
+
+    .btn-material {
+      background: linear-gradient(180deg, var(--accent), #2aa8ff);
+      color: #071025;
+      font-weight:700;
+      border-radius: 10px;
+      padding: 10px 16px;
+      border: none;
+      box-shadow: 0 6px 20px rgba(45,120,220,0.12);
+      transition: transform .08s ease, box-shadow .12s ease;
+    }
+    .btn-material:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(45,120,220,0.18); }
+
+    .results-card {
+      background: transparent;
+      margin-top: 12px;
+    }
+
+    .table {
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 10px;
+      overflow: hidden;
+      width: 100%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+    }
+
+    .table thead th {
+      background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      color: #d7ecff;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      font-weight:600;
+      font-size: 0.92rem;
+    }
+
+    .table tbody tr {
+      border-bottom: 1px solid rgba(255,255,255,0.02);
+    }
+
+    .table tbody td {
+      color: #d1e6ff;
+      background: transparent;
+      vertical-align: middle;
+      padding: 12px 14px;
+    }
+
+    .table tbody tr:hover td {
+      background: rgba(45,120,220,0.03);
+    }
+
+    .count-badge {
+      color: #071025;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight:700;
+      display: inline-block;
+      box-shadow: 0 6px 18px rgba(45,120,220,0.08);
+    }
+
+    .muted-note {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+  
+    @media (max-width: 992px) {
+      .col-md-4, .col-md-3, .col-md-2, .col-md-6 { flex: 0 0 100%; max-width: 100%; }
+      .btn-material { width: 100%; }
+    }
+  </style>
 </head>
-<body>
+<body class="p-4">
+  <div class="container">
 
-<h2>Log Filter</h2>
+    <h2 class="mb-3">LOG ANALYZER</h2>
 
-<form method="POST" action="/filter">
+    <div class="filter-card">
+      <form method="POST" action="/filter" class="row g-3 align-items-start">
 
-    <!-- Level -->
-    <div class="form-group">
-        <label>Level:</label>
-        <div class="checkbox-group">
-            <label><input type="checkbox" name="level" value="INFO" {{ if (contains .Level "INFO") }}checked{{ end }}> INFO</label>
-            <label><input type="checkbox" name="level" value="WARN" {{ if (contains .Level "WARN") }}checked{{ end }}> WARN</label>
-            <label><input type="checkbox" name="level" value="ERROR" {{ if (contains .Level "ERROR") }}checked{{ end }}> ERROR</label>
-            <label><input type="checkbox" name="level" value="DEBUG" {{ if (contains .Level "DEBUG") }}checked{{ end }}> DEBUG</label>
+  
+        <div class="col-md-4">
+          <label class="form-label">Level</label>
+          <small class="d-block muted-note mb-2">Select one or more</small>
+
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="level" value="INFO" {{ if (contains .Level "INFO") }}checked{{ end }}>
+            <label class="form-check-label">INFO</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="level" value="WARN" {{ if (contains .Level "WARN") }}checked{{ end }}>
+            <label class="form-check-label">WARN</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="level" value="ERROR" {{ if (contains .Level "ERROR") }}checked{{ end }}>
+            <label class="form-check-label">ERROR</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="level" value="DEBUG" {{ if (contains .Level "DEBUG") }}checked{{ end }}>
+            <label class="form-check-label">DEBUG</label>
+          </div>
         </div>
-    </div>
 
-    <!-- Component -->
-    <div class="form-group">
-        <label>Component:</label>
-        <div class="checkbox-group">
-            <label><input type="checkbox" name="component" value="api-server" {{ if (contains .Component "api-server") }}checked{{ end }}> api-server</label>
-            <label><input type="checkbox" name="component" value="database" {{ if (contains .Component "database") }}checked{{ end }}> database</label>
-            <label><input type="checkbox" name="component" value="cache" {{ if (contains .Component "cache") }}checked{{ end }}> cache</label>
-            <label><input type="checkbox" name="component" value="worker" {{ if (contains .Component "worker") }}checked{{ end }}> worker</label>
-            <label><input type="checkbox" name="component" value="auth" {{ if (contains .Component "auth") }}checked{{ end }}> auth</label>
+  
+        <div class="col-md-4">
+          <label class="form-label">Component</label>
+          <small class="d-block muted-note mb-2">Select one or more</small>
+
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="component" value="api-server" {{ if (contains .Component "api-server") }}checked{{ end }}>
+            <label class="form-check-label">api-server</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="component" value="database" {{ if (contains .Component "database") }}checked{{ end }}>
+            <label class="form-check-label">database</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="component" value="cache" {{ if (contains .Component "cache") }}checked{{ end }}>
+            <label class="form-check-label">cache</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="component" value="worker" {{ if (contains .Component "worker") }}checked{{ end }}>
+            <label class="form-check-label">worker</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="component" value="auth" {{ if (contains .Component "auth") }}checked{{ end }}>
+            <label class="form-check-label">auth</label>
+          </div>
         </div>
-    </div>
 
-    <!-- Host -->
-    <div class="form-group">
-        <label>Host:</label>
-        <div class="checkbox-group">
-            <label><input type="checkbox" name="host" value="web01" {{ if (contains .Host "web01") }}checked{{ end }}> web01</label>
-            <label><input type="checkbox" name="host" value="web02" {{ if (contains .Host "web02") }}checked{{ end }}> web02</label>
-            <label><input type="checkbox" name="host" value="cache01" {{ if (contains .Host "cache01") }}checked{{ end }}> cache01</label>
-            <label><input type="checkbox" name="host" value="worker01" {{ if (contains .Host "worker01") }}checked{{ end }}> worker01</label>
-            <label><input type="checkbox" name="host" value="db01" {{ if (contains .Host "db01") }}checked{{ end }}> db01</label>
+  
+        <div class="col-md-4">
+          <label class="form-label">Host</label>
+          <small class="d-block muted-note mb-2">Select one or more</small>
+
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="host" value="web01" {{ if (contains .Host "web01") }}checked{{ end }}>
+            <label class="form-check-label">web01</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="host" value="web02" {{ if (contains .Host "web02") }}checked{{ end }}>
+            <label class="form-check-label">web02</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="host" value="cache01" {{ if (contains .Host "cache01") }}checked{{ end }}>
+            <label class="form-check-label">cache01</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="host" value="worker01" {{ if (contains .Host "worker01") }}checked{{ end }}>
+            <label class="form-check-label">worker01</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="host" value="db01" {{ if (contains .Host "db01") }}checked{{ end }}>
+            <label class="form-check-label">db01</label>
+          </div>
         </div>
+
+        <div class="col-md-3">
+          <label class="form-label">Request ID</label>
+          <input type="text" name="request_id" class="form-control" value="{{ .RequestID }}" placeholder="Request ID">
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Timestamp</label>
+          <input type="text" name="timestamp" class="form-control" value="{{ .Timestamp }}" placeholder="> 2025-11-17 00:00:00">
+        </div>
+
+
+        <div class="col-md-2 d-flex align-items-end">
+          <button type="submit" class="btn-material btn-material btn-material" style="width:100%;">Search</button>
+        </div>
+
+      </form>
     </div>
 
-    <!-- Request ID -->
-    <div class="form-group">
-        <label>Request ID:</label>
-        <input type="text" name="request_id" value="{{ .RequestID }}" placeholder="Request ID">
-    </div>
 
-    <!-- Timestamp -->
-    <div class="form-group">
-        <label>Timestamp:</label>
-        <input type="text" name="timestamp" value="{{ .Timestamp }}" placeholder=">2025-11-17 10:00:00">
-    </div>
-
-    <div class="form-group" style="align-self:flex-end;">
-        <button type="submit">Search</button>
-    </div>
-</form>
-
-<!-- Error -->
-{{ if .Error }}
-<p class="error">{{ .Error }}</p>
-{{ end }}
-
-<!-- Results -->
-{{ if .Entries }}
-<h3>Results</h3>
-<p><b>{{ .Count }}</b> entries found.</p>
-<table>
-    <tr>
-        <th>Timestamp</th>
-        <th>Level</th>
-        <th>Component</th>
-        <th>Host</th>
-        <th>Request ID</th>
-        <th>Message</th>
-    </tr>
-    {{ range .Entries }}
-    <tr>
-        <td>{{ .TimeStamp }}</td>
-        <td>{{ .Level.Level }}</td>
-        <td>{{ .Component.Component }}</td>
-        <td>{{ .Host.Host }}</td>
-        <td>{{ .RequestId }}</td>
-        <td>{{ .Message }}</td>
-    </tr>
+    {{ if .Error }}
+      <p class="error">{{ .Error }}</p>
     {{ end }}
-</table>
-{{ end }}
 
+    {{ if .Entries }}
+      <div class="results-card">
+        <h3>Results <span class="ms-2 count-badge">{{ .Count }}</span></h3>
+
+        <div class="table-responsive mt-3">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Level</th>
+                <th>Component</th>
+                <th>Host</th>
+                <th>Request ID</th>
+                <th>Message</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ range .Entries }}
+                <tr>
+                  <td>{{ .TimeStamp }}</td>
+                  <td>{{ .Level.Level }}</td>
+                  <td>{{ .Component.Component }}</td>
+                  <td>{{ .Host.Host }}</td>
+                  <td>{{ .RequestId }}</td>
+                  <td>{{ .Message }}</td>
+                </tr>
+              {{ end }}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {{ end }}
+
+  </div>
 </body>
 </html>

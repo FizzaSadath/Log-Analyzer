@@ -11,8 +11,6 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	DB = db
 
 	r := gin.Default()
-
-	// Add custom template function "contains" for pre-selecting multi-select options
 	r.SetFuncMap(map[string]interface{}{
 		"contains": func(arr []string, val string) bool {
 			for _, v := range arr {

@@ -233,7 +233,7 @@ func GetAllLogs(db *gorm.DB) ([]Entry, error) {
 		Find(&result).Error
 	return result, err
 }
-func FilterLogs(db *gorm.DB, levels, components, hosts []string, requestID, timestampCond string) ([]Entry, error) {
+func FilterLogsWeb(db *gorm.DB, levels, components, hosts []string, requestID, timestampCond string) ([]Entry, error) {
 	var queries []string
 
 	// Levels

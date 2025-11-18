@@ -19,17 +19,16 @@ func ShowFilterPage(c *gin.Context) {
 
 func RunFilter(c *gin.Context) {
 
-	// Multi-select checkboxes
+	//  checkboxes
 	levels := c.PostFormArray("level")
 	components := c.PostFormArray("component")
 	hosts := c.PostFormArray("host")
 
 	// Textboxes
 	requestID := c.PostForm("request_id")
-	timestamp := c.PostForm("timestamp") // e.g., "> 2025-11-17 10:00:00"
+	timestamp := c.PostForm("timestamp") // eg >2025-11-17 10:00:00"
 
-	// Call database function
-	entries, err := database.FilterLogs(DB, levels, components, hosts, requestID, timestamp)
+	entries, err := database.FilterLogsWeb(DB, levels, components, hosts, requestID, timestamp)
 	if err != nil {
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"Error":     err.Error(),
