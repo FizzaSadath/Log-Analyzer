@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>LOG ANALYZER</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <style>
+      :root {
+        --bg: #ffffff;
+        --card: #f9f9f9;
+        --muted: #4a4a4a;
+        --accent: #007bff;
+        --accent-2: #00c2a8;
+        --surface: #ffffff;
+        --elev-1: rgba(0, 0, 0, 0.05);
+      }
+
+      body {
+        background: #f3f6fa;
+        color: #000000;
+        font-family: "Inter", Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+
+      .filter-card {
+        background: var(--card);
+        border-radius: 12px;
+        padding: 22px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e2e2e2;
+        margin-bottom: 20px;
+      }
+
+      label.form-label {
+        color: #222;
+        font-weight: 600;
+      }
+
+      .form-control {
+        background: #ffffff;
+        border: 1px solid #ccc;
+        color: #000;
+        border-radius: 8px;
+        padding: 8px 12px;
+      }
+
+      .form-check-input {
+        width: 18px;
+        height: 18px;
+        margin-right: 0.4rem;
+      }
+
+      .table {
+        background: white;
+      }
+
+      .count-badge {
+        color: white;
+        background: var(--accent);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 700;
+      }
+
+      #loading {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body class="p-4">
+    <div class="container">
+      <h2 class="mb-3">LOG ANALYZER</h2>
+
+      <div class="filter-card">
+        <form id="searchForm" class="row g-3 align-items-start">
+          <!-- LEVEL CHECKBOXES -->
+          <div class="col-md-4">
+            <label class="form-label">Level</label>
+            <small class="d-block text-muted mb-2">Select one or more</small>
+
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                name="level"
+                value="INFO"
+              />
+              <label class="form-check-label">INFO</label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                name="level"
+                value="WARN"
+              />
+              <label class="form-check-label">WARN</label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                name="level"
+                value="ERROR"
+              />
+              <label class="form-check-label">ERROR</label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                name="level"
+                value="DEBUG"
+              />
+              <label class="form-check-label">DEBUG</label>
+            </div>
+          </div>
+
+          <!-- COMPONENT CHECKBOXES -->
+          <div class="col-md-4">
+            <label class="form-label">Component</label>
+            <small class="d-block text-muted mb-2">Select one or more</small>
+
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                name="component"
+                value="api-server"
+              /><label class="form-check-label">api-server</label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                name="component"
+                value="database"
+              /><label class="form-check-label">database</label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                name="component"
+                value="cache"
+              /><label class="form-check-label">cache</label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                name="component"
+                value="worker"
+              /><label class="form-check-label">worker</label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                name="component"
+                value="auth"
+              /><label class="form-check-label">auth</label>
+            </div>
+          </div>
+
+          <!-- HOST CHECKBOXES -->
+          <div class="col-md-4">
+            <label class="form-label">Host</label>
+            <small class="d-block text-muted mb-2">Select one or more</small>
+
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                name="host"
+                value="web01"
+              /><label class="form-check-label">web01</label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                name="host"
+                value="web02"
+              /><label class="form-check-label">web02</label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                name="host"
+                value="cache01"
+              /><label class="form-check-label">cache01</label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                name="host"
+                value="worker01"
+              /><label class="form-check-label">worker01</label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                name="host"
+                value="db01"
+              /><label class="form-check-label">db01</label>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Request ID</label>
+            <input
+              type="text"
+              name="request_id"
+              class="form-control"
+              placeholder="Request ID"
+            />
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Timestamp</label>
+            <input
+              type="text"
+              name="timestamp"
+              class="form-control"
+              placeholder="> 2025-11-17 00:00:00"
+            />
+          </div>
+
+          <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Search</button>
+          </div>
+        </form>
+
+        <div id="loading">Loading results...</div>
+        <div id="errorBox"></div>
+        <div id="resultBox" class="card p-3 mt-3"></div>
+      </div>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+        $("#searchForm").submit(function (event) {
+          event.preventDefault();
+
+          $("#loading").show();
+          $("#errorBox").html("");
+          $("#resultBox").html("");
+
+          $.ajax({
+            url: "/search",
+            method: "POST",
+            data: $(this).serialize(),
+            headers: { "X-Requested-With": "XMLHttpRequest" },
+
+            success: function (response) {
+              $("#loading").hide();
+
+              if (response.entries.length === 0) {
+                $("#resultBox").html(
+                  '<p class="text-center text-muted">No results found.</p>'
+                );
+                return;
+              }
+
+              let html = `
+          <div class="mb-2">
+            <span class="count-badge">Matched Entries: ${response.entries.length}</span>
+          </div>
+
+          <table class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Level</th>
+                <th>Component</th>
+                <th>Host</th>
+                <th>Request ID</th>
+                <th>Message</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+              response.entries.forEach((item) => {
+                html += `
+            <tr>
+              <td>${item.TimeStamp}</td>
+              <td>${item.Level.Level}</td>
+              <td>${item.Component.Component}</td>
+              <td>${item.Host.Host}</td>
+              <td>${item.RequestId}</td>
+              <td>${item.Message}</td>
+            </tr>`;
+              });
+
+              html += `</tbody></table>`;
+              $("#resultBox").html(html);
+            },
+
+            error: function (xhr) {
+              $("#loading").hide();
+              $("#errorBox").html(
+                `<div class="alert alert-danger">${xhr.responseJSON.error}</div>`
+              );
+            },
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
