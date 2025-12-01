@@ -233,6 +233,7 @@ func GetAllLogs(db *gorm.DB) ([]Entry, error) {
 		Find(&result).Error
 	return result, err
 }
+
 // func FilterLogsWeb(db *gorm.DB, levels, components, hosts []string, requestID, timestampCond string) ([]Entry, error) {
 // 	var queries []string
 
@@ -266,53 +267,62 @@ func GetAllLogs(db *gorm.DB) ([]Entry, error) {
 // 		return GetAllLogs(db)
 // 	}
 
-// 	// Call existing QueryDB which takes []string
-// 	return QueryDB(db, queries)
-// }
-func FilterLogsWeb(db *gorm.DB, levels, components, hosts []string, requestID, timestampCond string) ([]Entry, error) {
-    var queries []string
+//		// Call existing QueryDB which takes []string
+//		return QueryDB(db, queries)
+//	}
+func FilterLogsWeb(
+	DB *gorm.DB,
+	levels []string,
+	components []string,
+	hosts []string,
+	requestId string,
+	startTime string,
+	endTime string,
+) ([]Entry, error) {
 
-    // Levels
-    if len(levels) > 0 {
-        queries = append(queries, "level="+strings.Join(levels, "|"))
-    }
+	query := DB.Model(&Entry{})
 
-    // Components
-    if len(components) > 0 {
-        queries = append(queries, "component="+strings.Join(components, "|"))
-    }
+	if len(levels) > 0 {
+		var levelIDs []uint
+		DB.Model(&LogLevel{}).Where("level IN ?", levels).Pluck("id", &levelIDs)
+		if len(levelIDs) > 0 {
+			query = query.Where("level_id IN ?", levelIDs)
+		}
+	}
 
-    // Hosts
-    if len(hosts) > 0 {
-        queries = append(queries, "host="+strings.Join(hosts, "|"))
-    }
+	if len(components) > 0 {
+		var compIDs []uint
+		DB.Model(&LogComponent{}).Where("component IN ?", components).Pluck("id", &compIDs)
+		if len(compIDs) > 0 {
+			query = query.Where("component_id IN ?", compIDs)
+		}
+	}
+	if len(hosts) > 0 {
+		var hostIDs []uint
+		DB.Model(&LogHost{}).Where("host IN ?", hosts).Pluck("id", &hostIDs)
+		if len(hostIDs) > 0 {
+			query = query.Where("host_id IN ?", hostIDs)
+		}
+	}
 
-    // Request ID
-    if strings.TrimSpace(requestID) != "" {
-        queries = append(queries, "request_id="+requestID)
-    }
+	if requestId != "" {
+		query = query.Where("request_id = ?", requestId)
+	}
 
-    // Timestamp
-    if strings.TrimSpace(timestampCond) != "" {
-        op := ""
-        val := ""
+	if startTime != "" && endTime != "" {
+		query = query.Where("time_stamp BETWEEN ? AND ?", startTime, endTime)
+	} else if startTime != "" {
+		query = query.Where("time_stamp >= ?", startTime)
+	} else if endTime != "" {
+		query = query.Where("time_stamp <= ?", endTime)
+	}
+	var entries []Entry
+	result := query.
+		Preload("Level").
+		Preload("Component").
+		Preload("Host").
+		Order("time_stamp").
+		Find(&entries)
 
-        if strings.HasPrefix(timestampCond, ">=") || strings.HasPrefix(timestampCond, "<=") {
-            op = timestampCond[:2]
-            val = timestampCond[2:]
-        } else {
-            op = timestampCond[:1]
-            val = timestampCond[1:]
-        }
-
-        queries = append(queries, fmt.Sprintf("time_stamp %s %s", op, strings.TrimSpace(val)))
-    }
-
-    // If nothing, return all logs
-    if len(queries) == 0 {
-        return GetAllLogs(db)
-    }
-
-    return QueryDB(db, queries)
+	return entries, result.Error
 }
-

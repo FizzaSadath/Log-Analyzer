@@ -112,7 +112,8 @@ func FilterPaginatedLogs(c *gin.Context) {
 		Components []string `json:"components"`
 		Hosts      []string `json:"hosts"`
 		RequestID  string   `json:"requestId"`
-		TimeStamp  string   `json:"timeStamp"`
+		StartTime  string   `json:"startTime"`
+		EndTime    string   `json:"endTime"`
 	}
 
 	if err := c.ShouldBindJSON(&body); err != nil {
@@ -126,7 +127,8 @@ func FilterPaginatedLogs(c *gin.Context) {
 		body.Components,
 		body.Hosts,
 		body.RequestID,
-		body.TimeStamp,
+		body.StartTime,
+		body.EndTime,
 	)
 
 	if err != nil {
